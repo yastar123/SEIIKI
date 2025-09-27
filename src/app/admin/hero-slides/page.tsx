@@ -1,40 +1,33 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-
-// Mock data - akan diganti dengan data dari database
-const mockSlides = [
-  {
-    id: '1',
-    title: 'SEIIKI',
-    subtitle: 'AMAN TERPERCAYA',
-    description: 'Pusat Layanan Sertifikat Laik Operasi Instalasi Tenaga Listrik',
-    imageUrl: 'https://images.unsplash.com/photo-1549480017-d76466a4073b?w=1080&h=720&fit=crop',
-    buttonText: 'TENTANG KAMI',
-    buttonUrl: '/profil/tentang-kami',
-    order: 1,
-    active: true,
-  },
-  {
-    id: '2',
-    title: 'Layanan Profesional',
-    subtitle: 'SLO Tegangan Rendah & Menengah',
-    description: 'Sertifikasi instalasi listrik dengan standar keamanan tertinggi',
-    imageUrl: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=1080&h=720&fit=crop',
-    buttonText: 'LAYANAN KAMI',
-    buttonUrl: '/slo',
-    order: 2,
-    active: true,
-  },
-];
+import { useHeroSlides } from '@/hooks/use-admin-data';
 
 export default function HeroSlidesPage() {
-  const [slides] = useState(mockSlides);
+  const { slides, loading, error, refetch } = useHeroSlides();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500">Error: {error}</p>
+        <Button onClick={refetch} className="mt-4">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

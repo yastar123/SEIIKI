@@ -1,4 +1,8 @@
-import Link from "next/link";
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,40 +13,81 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Logo } from "@/components/icons";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, user } = useAuth();
+  const router = useRouter();
+
+  // Redirect if already logged in
+  if (user) {
+    router.push('/admin');
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      await login(email, password);
+      router.push('/admin');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader className="text-center">
-            <Logo className="mx-auto h-12 w-auto mb-4" />
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">SEIIKI Admin</CardTitle>
           <CardDescription>
-            Masukkan email Anda di bawah untuk login ke akun Anda
+            Masukkan email dan password untuk login
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="admin@seiiki.co.id"
                 required
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input id="password" type="password" required />
+              <Label htmlFor="password">Password</Label>
+              <Input 
+                id="password" 
+                name="password"
+                type="password" 
+                required 
+              />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
             </Button>
-          </div>
+          </form>
         </CardContent>
       </Card>
     </div>

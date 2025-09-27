@@ -1,44 +1,32 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Star } from 'lucide-react';
-
-// Mock data
-const mockServices = [
-  {
-    id: '1',
-    title: 'SLO Tegangan Rendah (TR)',
-    description: 'Sertifikasi untuk instalasi listrik rumah tangga, bisnis kecil, dan fasilitas umum dengan standar keamanan tertinggi.',
-    icon: 'Zap',
-    imageUrl: null,
-    featured: true,
-    order: 1,
-  },
-  {
-    id: '2',
-    title: 'SLO Tegangan Menengah (TM)',
-    description: 'Layanan sertifikasi untuk instalasi industri, komersial besar, dan jaringan distribusi dengan keandalan terjamin.',
-    icon: 'ShieldCheck',
-    imageUrl: null,
-    featured: true,
-    order: 2,
-  },
-  {
-    id: '3',
-    title: 'Konsultasi & Uji Petik',
-    description: 'Dukungan ahli untuk perencanaan, pemeliharaan, dan pengujian instalasi listrik Anda agar selalu laik operasi.',
-    icon: 'FileText',
-    imageUrl: null,
-    featured: true,
-    order: 3,
-  },
-];
+import { Plus, Edit, Trash2, Star, Loader2 } from 'lucide-react';
+import { useServices } from '@/hooks/use-admin-data';
 
 export default function ServicesPage() {
-  const [services] = useState(mockServices);
+  const { services, loading, error, refetch } = useServices();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-500">Error: {error}</p>
+        <Button onClick={refetch} className="mt-4">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

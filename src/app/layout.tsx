@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { AuthProvider } from '@/contexts/auth-context';
 import { usePathname } from 'next/navigation';
 
 
@@ -14,6 +15,8 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith('/dashboard');
+  const isAdmin = pathname.startsWith('/admin');
+  const isLogin = pathname.startsWith('/login');
 
   const metadata: Metadata = {
     title: 'SEIIKI - PT. Solusi Energi Kelistrikan Indonesia',
@@ -23,7 +26,7 @@ export default function RootLayout({
     },
   };
   
-  if (isDashboard) {
+  if (isDashboard || isAdmin || isLogin) {
     return (
        <html lang="id" suppressHydrationWarning>
         <head>
@@ -32,8 +35,10 @@ export default function RootLayout({
           <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
         </head>
         <body className="font-body bg-background text-foreground antialiased min-h-screen flex flex-col">
-          {children}
-          <Toaster />
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
         </body>
       </html>
     )
@@ -47,10 +52,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body bg-background text-foreground antialiased min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-        <Toaster />
+        <AuthProvider>
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
