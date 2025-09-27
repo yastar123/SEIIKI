@@ -3,9 +3,12 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
-);
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const JWT_SECRET = new TextEncoder().encode(jwtSecret);
 
 export interface UserPayload {
   id: string;
@@ -56,10 +59,12 @@ export async function getUser(request?: NextRequest): Promise<UserPayload | null
   return verifyToken(token);
 }
 
-export function setAuthCookie(token: string): string {
-  return `auth-token=${token}; HttpOnly; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;
+export function setAuthCookie(token: string, isProduction = process.env.NODE_ENV === 'production'): string {
+  const secure = isProduction ? '; Secure' : '';
+  return `auth-token=${token}; HttpOnly; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict${secure}`;
 }
 
-export function clearAuthCookie(): string {
-  return 'auth-token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict';
+export function clearAuthCookie(isProduction = process.env.NODE_ENV === 'production'): string {
+  const secure = isProduction ? '; Secure' : '';
+  return `auth-token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${secure}`;
 }

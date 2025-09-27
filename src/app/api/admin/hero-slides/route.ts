@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getUser } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -18,6 +19,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getUser(request);
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { title, subtitle, description, imageUrl, buttonText, buttonUrl, order, active } = body;
 
