@@ -30,6 +30,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Configuration for Replit environment
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
