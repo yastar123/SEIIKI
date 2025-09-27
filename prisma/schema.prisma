@@ -10,6 +10,109 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Content Management Models
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdContent Content[]
+}
+
+model Content {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String?
+  content     String?     @db.Text
+  imageUrl    String?
+  type        ContentType
+  status      ContentStatus @default(DRAFT)
+  featured    Boolean     @default(false)
+  order       Int         @default(0)
+  seoTitle    String?
+  seoDesc     String?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  createdBy   String?
+  creator     User?       @relation(fields: [createdBy], references: [id])
+  
+  // Content sections
+  sections    ContentSection[]
+}
+
+model ContentSection {
+  id        String  @id @default(cuid())
+  title     String
+  subtitle  String?
+  text      String? @db.Text
+  imageUrl  String?
+  order     Int     @default(0)
+  
+  // Relations
+  contentId String
+  content   Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model HeroSlide {
+  id          String  @id @default(cuid())
+  title       String
+  subtitle    String?
+  description String?
+  imageUrl    String
+  buttonText  String?
+  buttonUrl   String?
+  order       Int     @default(0)
+  active      Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  icon        String?
+  imageUrl    String?
+  featured    Boolean @default(false)
+  order       Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Statistics {
+  id    String @id @default(cuid())
+  label String
+  value String
+  order Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactInfo {
+  id      String @id @default(cuid())
+  type    ContactType
+  label   String
+  value   String
+  icon    String?
+  order   Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// SLO Application Models (existing)
 model SloApplication {
   id                String      @id @default(cuid())
   createdAt         DateTime    @default(now())
@@ -31,6 +134,33 @@ model SloApplication {
   registrationNumber String?           @unique // Generated after approval
 
   notes             String?
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  EDITOR
+  USER
+}
+
+enum ContentType {
+  PAGE
+  POST
+  SERVICE
+  GALLERY
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ContactType {
+  PHONE
+  EMAIL
+  ADDRESS
+  SOCIAL
 }
 
 enum ApplicationStatus {
