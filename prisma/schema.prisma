@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SloApplication {
+  id                String      @id @default(cuid())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // Applicant Data
+  applicantName     String
+  applicantIdNumber String      @unique
+  applicantPhone    String
+  applicantEmail    String      @unique
+
+  // Installation Data
+  installationAddress String
+  installationType    InstallationType
+  powerRating         Int // in VA
+  
+  // Status
+  status            ApplicationStatus @default(PENDING)
+  registrationNumber String?           @unique // Generated after approval
+
+  notes             String?
+}
+
+enum ApplicationStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CERTIFIED
+}
+
+enum InstallationType {
+  TR_RUMAH
+  TR_BISNIS
+  TM_INDUSTRI
+}
