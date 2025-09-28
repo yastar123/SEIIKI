@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getUser } from '@/lib/auth';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
+
+const serviceSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  icon: z.string().optional(),
+  imageUrl: z.string().optional(),
+  featured: z.boolean().default(false),
+  order: z.number().default(0),
+});
 
 export async function GET() {
   try {
@@ -27,21 +37,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, icon, imageUrl, featured, order } = body;
+    const validatedData = serviceSchema.parse(body);
 
     const service = await prisma.service.create({
-      data: {
-        title,
-        description,
-        icon,
-        imageUrl,
-        featured: featured ?? false,
-        order: order || 0,
-      },
+      data: validatedData,
     });
 
     return NextResponse.json(service, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Failed to create service' },
       { status: 500 }

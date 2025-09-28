@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getUser } from '@/lib/auth';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
+
+const heroSlideSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  subtitle: z.string().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().min(1, 'Image URL is required'),
+  buttonText: z.string().optional(),
+  buttonUrl: z.string().optional(),
+  order: z.number().default(0),
+  active: z.boolean().default(true),
+});
 
 export async function PUT(
   request: NextRequest,
@@ -16,24 +28,22 @@ export async function PUT(
 
     const { id } = params;
     const body = await request.json();
-    const { title, subtitle, description, imageUrl, buttonText, buttonUrl, order, active } = body;
+    const validatedData = heroSlideSchema.partial().parse(body);
 
     const slide = await prisma.heroSlide.update({
       where: { id },
-      data: {
-        title,
-        subtitle,
-        description,
-        imageUrl,
-        buttonText,
-        buttonUrl,
-        order,
-        active,
-      },
+      data: validatedData,
     });
 
     return NextResponse.json(slide);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Failed to update hero slide' },
       { status: 500 }
