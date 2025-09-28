@@ -19,15 +19,62 @@ const contentSchema = z.object({
   seoDesc: z.string().optional(),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const user = await getUser(request);
     if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const content = await prisma.content.findMany({
-      orderBy: { order: 'asc' },
+    const { id } = await params;
+    const content = await prisma.content.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: { id: true, name: true, email: true },
+        },
+        sections: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!content) {
+      return NextResponse.json(
+        { error: 'Content not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(content);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to fetch content' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser(request);
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const validatedData = contentSchema.parse(body);
+
+    const content = await prisma.content.update({
+      where: { id },
+      data: validatedData,
       include: {
         creator: {
           select: { id: true, name: true, email: true },
@@ -40,38 +87,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(content);
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch content' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const user = await getUser(request);
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const validatedData = contentSchema.parse(body);
-
-    const content = await prisma.content.create({
-      data: {
-        ...validatedData,
-        createdBy: user.id,
-      },
-      include: {
-        creator: {
-          select: { id: true, name: true, email: true },
-        },
-        sections: true,
-      },
-    });
-
-    return NextResponse.json(content, { status: 201 });
-  } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
@@ -80,7 +95,31 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Failed to create content' },
+      { error: 'Failed to update content' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser(request);
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    await prisma.content.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to delete content' },
       { status: 500 }
     );
   }

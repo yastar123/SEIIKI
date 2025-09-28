@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { hashPassword, signToken, setAuthCookie } from '@/lib/auth';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
 const registerSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),

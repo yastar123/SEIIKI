@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUser } from '@/lib/auth';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
 const contactInfoSchema = z.object({
   type: z.enum(['PHONE', 'EMAIL', 'ADDRESS', 'SOCIAL']),
   label: z.string().min(1, 'Label is required'),

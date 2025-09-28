@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { getUser } from '@/lib/auth';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+
 const statisticsSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
