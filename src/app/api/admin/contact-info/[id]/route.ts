@@ -54,7 +54,7 @@ export async function DELETE(
 ) {
   try {
     const user = await getUser(request);
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -67,37 +67,6 @@ export async function DELETE(
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to delete contact info' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const user = await getUser(request);
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { id } = await params;
-    const contactInfo = await prisma.contactInfo.findUnique({
-      where: { id },
-    });
-
-    if (!contactInfo) {
-      return NextResponse.json(
-        { error: 'Contact info not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(contactInfo);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch contact info' },
       { status: 500 }
     );
   }

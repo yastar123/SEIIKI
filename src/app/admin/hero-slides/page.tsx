@@ -3,12 +3,37 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useHeroSlides } from '@/hooks/use-admin-data';
+import { HeroSlideForm } from '@/components/admin/hero-slide-form';
+import { DeleteConfirmDialog } from '@/components/admin/delete-confirm-dialog';
 
 export default function HeroSlidesPage() {
   const { slides, loading, error, refetch } = useHeroSlides();
+
+  const handleDelete = async (id: string) => {
+    const response = await fetch(`/api/admin/hero-slides/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete hero slide');
+    }
+    refetch();
+  };
+
+  const toggleActive = async (id: string, currentActive: boolean) => {
+    const response = await fetch(`/api/admin/hero-slides/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ active: !currentActive }),
+    });
+    if (response.ok) {
+      refetch();
+    }
+  };
 
   if (loading) {
     return (
@@ -38,10 +63,7 @@ export default function HeroSlidesPage() {
             Kelola slide banner utama website
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Tambah Slide
-        </Button>
+        <HeroSlideForm mode="create" onSuccess={refetch} />
       </div>
 
       <div className="grid gap-6">
@@ -61,19 +83,27 @@ export default function HeroSlidesPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toggleActive(slide.id, slide.active)}
+                  >
                     {slide.active ? (
                       <Eye className="h-4 w-4" />
                     ) : (
                       <EyeOff className="h-4 w-4" />
                     )}
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <HeroSlideForm 
+                    mode="edit" 
+                    slide={slide} 
+                    onSuccess={refetch} 
+                  />
+                  <DeleteConfirmDialog
+                    title="Hero Slide"
+                    description="Slide ini akan dihapus permanen dari website."
+                    onConfirm={() => handleDelete(slide.id)}
+                  />
                 </div>
               </div>
             </CardHeader>

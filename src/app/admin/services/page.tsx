@@ -3,11 +3,23 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Star, Loader2 } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import { useServices } from '@/hooks/use-admin-data';
+import { ServiceForm } from '@/components/admin/service-form';
+import { DeleteConfirmDialog } from '@/components/admin/delete-confirm-dialog';
 
 export default function ServicesPage() {
   const { services, loading, error, refetch } = useServices();
+
+  const handleDelete = async (id: string) => {
+    const response = await fetch(`/api/admin/services/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete service');
+    }
+    refetch();
+  };
 
   if (loading) {
     return (
@@ -37,10 +49,7 @@ export default function ServicesPage() {
             Kelola layanan yang ditampilkan di website
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Tambah Layanan
-        </Button>
+        <ServiceForm mode="create" onSuccess={refetch} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -55,12 +64,16 @@ export default function ServicesPage() {
                   )}
                 </CardTitle>
                 <div className="flex gap-1">
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <ServiceForm 
+                    mode="edit" 
+                    service={service} 
+                    onSuccess={refetch} 
+                  />
+                  <DeleteConfirmDialog
+                    title="Layanan"
+                    description="Layanan ini akan dihapus permanen dari website."
+                    onConfirm={() => handleDelete(service.id)}
+                  />
                 </div>
               </div>
             </CardHeader>
