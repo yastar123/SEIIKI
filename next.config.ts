@@ -37,6 +37,7 @@ const nextConfig: NextConfig = {
     'localhost:*',
     '127.0.0.1:*',
     '*.picard.replit.dev',
+    '*.spock.replit.dev',
   ],
   // Headers configuration
   async headers() {
