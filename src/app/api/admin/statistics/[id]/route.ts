@@ -52,7 +52,7 @@ export async function DELETE(
 ) {
   try {
     const user = await getUser(request);
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -65,37 +65,6 @@ export async function DELETE(
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to delete statistic' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const user = await getUser(request);
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { id } = await params;
-    const statistic = await prisma.statistics.findUnique({
-      where: { id },
-    });
-
-    if (!statistic) {
-      return NextResponse.json(
-        { error: 'Statistic not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(statistic);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch statistic' },
       { status: 500 }
     );
   }
