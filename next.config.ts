@@ -30,10 +30,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Configuration for Replit environment to handle proxy
-  experimental: {
-    allowedOrigins: ['*'],
-  },
   // Allow all origins for dev mode (Replit proxy)
   allowedDevOrigins: [
     '*.replit.dev',
