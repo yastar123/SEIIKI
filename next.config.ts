@@ -30,7 +30,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Configuration for Replit environment
+  // Configuration for Replit environment to handle proxy
+  experimental: {
+    allowedOrigins: ['*'],
+  },
+  // Allow all origins for dev mode (Replit proxy)
+  allowedDevOrigins: [
+    '*.replit.dev',
+    '*.repl.co',
+    'localhost:*',
+    '127.0.0.1:*',
+    '*.picard.replit.dev',
+  ],
+  // Headers configuration
   async headers() {
     return [
       {
@@ -39,6 +51,10 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
           },
         ],
       },
