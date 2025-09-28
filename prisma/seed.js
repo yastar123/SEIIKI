@@ -1,21 +1,17 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+// Prisma seed script for creating admin user and base content
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-async function main() {
-  // Create admin user
-  const adminEmail = 'admin@seiiki.co.id';
-  const adminPassword = 'admin123'; // Change this in production
+async function run() {
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@seiiki.co.id';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123'; // Change in production
 
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
-  });
-
+  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
   if (!existingAdmin) {
     const hashedPassword = await bcrypt.hash(adminPassword, 12);
-    
-    const admin = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: adminEmail,
         password: hashedPassword,
@@ -23,13 +19,11 @@ async function main() {
         role: 'ADMIN',
       },
     });
-
-    console.log('✅ Admin user created:', admin.email);
+    console.log(`✅ Admin user created: ${adminEmail}`);
   } else {
-    console.log('✅ Admin user already exists:', existingAdmin.email);
+    console.log(`✅ Admin user already exists: ${existingAdmin.email}`);
   }
 
-  // Create some sample data
   const heroSlideCount = await prisma.heroSlide.count();
   if (heroSlideCount === 0) {
     await prisma.heroSlide.createMany({
@@ -38,7 +32,8 @@ async function main() {
           title: 'SEIIKI',
           subtitle: 'AMAN TERPERCAYA',
           description: 'Pusat Layanan Sertifikat Laik Operasi Instalasi Tenaga Listrik',
-          imageUrl: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=1080&h=720&fit=crop',
+          imageUrl:
+            'https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=1080&h=720&fit=crop',
           buttonText: 'TENTANG KAMI',
           buttonUrl: '/profil/tentang-kami',
           order: 1,
@@ -48,7 +43,8 @@ async function main() {
           title: 'Layanan Profesional',
           subtitle: 'SLO Tegangan Rendah & Menengah',
           description: 'Sertifikasi instalasi listrik dengan standar keamanan tertinggi',
-          imageUrl: 'https://images.unsplash.com/photo-1549480017-d76466a4073b?w=1080&h=720&fit=crop',
+          imageUrl:
+            'https://images.unsplash.com/photo-1549480017-d76466a4073b?w=1080&h=720&fit=crop',
           buttonText: 'LAYANAN KAMI',
           buttonUrl: '/slo',
           order: 2,
@@ -65,21 +61,24 @@ async function main() {
       data: [
         {
           title: 'SLO Tegangan Rendah (TR)',
-          description: 'Sertifikasi untuk instalasi listrik rumah tangga, bisnis kecil, dan fasilitas umum dengan standar keamanan tertinggi.',
+          description:
+            'Sertifikasi untuk instalasi listrik rumah tangga, bisnis kecil, dan fasilitas umum dengan standar keamanan tertinggi.',
           icon: 'Zap',
           featured: true,
           order: 1,
         },
         {
           title: 'SLO Tegangan Menengah (TM)',
-          description: 'Layanan sertifikasi untuk instalasi industri, komersial besar, dan jaringan distribusi dengan keandalan terjamin.',
+          description:
+            'Layanan sertifikasi untuk instalasi industri, komersial besar, dan jaringan distribusi dengan keandalan terjamin.',
           icon: 'ShieldCheck',
           featured: true,
           order: 2,
         },
         {
           title: 'Konsultasi & Uji Petik',
-          description: 'Dukungan ahli untuk perencanaan, pemeliharaan, dan pengujian instalasi listrik Anda agar selalu laik operasi.',
+          description:
+            'Dukungan ahli untuk perencanaan, pemeliharaan, dan pengujian instalasi listrik Anda agar selalu laik operasi.',
           icon: 'FileText',
           featured: true,
           order: 3,
@@ -136,7 +135,7 @@ async function main() {
   console.log(`👤 Admin login: ${adminEmail} / ${adminPassword}`);
 }
 
-main()
+run()
   .catch((e) => {
     console.error(e);
     process.exit(1);
