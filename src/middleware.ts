@@ -13,7 +13,13 @@ export async function middleware(request: NextRequest) {
       }
 
       // Lightweight JWT verification without bcrypt
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default-secret');
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        console.error('JWT_SECRET is not configured');
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+      
+      const secret = new TextEncoder().encode(jwtSecret);
       const { payload } = await jwtVerify(token.value, secret);
       
       // Check if user has admin or editor role
