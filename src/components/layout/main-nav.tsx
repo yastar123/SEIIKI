@@ -36,7 +36,7 @@ import {
   BarChart,
 } from 'lucide-react';
 
-const profileComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
+export const profileComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
   {
     title: 'Tentang Kami',
     href: '/profil/tentang-kami',
@@ -111,7 +111,7 @@ const profileComponents: { title: string; href: string; description: string, ico
   },
 ];
 
-const sloComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
+export const sloComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
     {
         title: 'Informasi SLO',
         href: '/slo/informasi',
@@ -162,7 +162,7 @@ const sloComponents: { title: string; href: string; description: string, icon: R
     },
 ];
 
-const surveyComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
+export const surveyComponents: { title: string; href: string; description: string, icon: React.ReactNode }[] = [
     {
         title: 'Survey TR',
         href: '/survei/tr',
@@ -183,15 +183,18 @@ export function MainNav() {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <Link href="/" legacyBehavior passHref>
-            <NavigationMenuLink active={pathname === '/'} className={navigationMenuTriggerStyle()}>
-              Home
-            </NavigationMenuLink>
-          </Link>
+          <NavigationMenuLink asChild className={cn(
+            navigationMenuTriggerStyle(),
+            pathname === '/' && 'bg-accent text-accent-foreground'
+          )}>
+            <Link href="/">Home</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         
         <NavigationMenuItem>
-          <NavigationMenuTrigger active={pathname.startsWith('/profil')}>Profil</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={cn(
+            pathname.startsWith('/profil') && 'bg-accent text-accent-foreground'
+          )}>Profil</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
               {profileComponents.map((component) => (
@@ -209,7 +212,9 @@ export function MainNav() {
         </NavigationMenuItem>
         
         <NavigationMenuItem>
-          <NavigationMenuTrigger active={pathname.startsWith('/slo')}>SLO</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={cn(
+            pathname.startsWith('/slo') && 'bg-accent text-accent-foreground'
+          )}>SLO</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {sloComponents.map((component) => (
@@ -227,31 +232,36 @@ export function MainNav() {
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <Link href="/galeri" legacyBehavior passHref>
-            <NavigationMenuLink active={pathname === '/galeri'} className={navigationMenuTriggerStyle()}>
-              Galeri
-            </NavigationMenuLink>
-          </Link>
+          <NavigationMenuLink asChild className={cn(
+            navigationMenuTriggerStyle(),
+            pathname === '/galeri' && 'bg-accent text-accent-foreground'
+          )}>
+            <Link href="/galeri">Galeri</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <Link href="/karir" legacyBehavior passHref>
-            <NavigationMenuLink active={pathname === '/karir'} className={navigationMenuTriggerStyle()}>
-              Karir
-            </NavigationMenuLink>
-          </Link>
+          <NavigationMenuLink asChild className={cn(
+            navigationMenuTriggerStyle(),
+            pathname === '/karir' && 'bg-accent text-accent-foreground'
+          )}>
+            <Link href="/karir">Karir</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <Link href="/kontak" legacyBehavior passHref>
-            <NavigationMenuLink active={pathname === '/kontak'} className={navigationMenuTriggerStyle()}>
-              Kontak Kami
-            </NavigationMenuLink>
-          </Link>
+          <NavigationMenuLink asChild className={cn(
+            navigationMenuTriggerStyle(),
+            pathname === '/kontak' && 'bg-accent text-accent-foreground'
+          )}>
+            <Link href="/kontak">Kontak Kami</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         
         <NavigationMenuItem>
-          <NavigationMenuTrigger active={pathname.startsWith('/survei')}>Survey</NavigationMenuTrigger>
+          <NavigationMenuTrigger className={cn(
+            pathname.startsWith('/survei') && 'bg-accent text-accent-foreground'
+          )}>Survey</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[300px] gap-3 p-4 md:w-[400px]">
               {surveyComponents.map((component) => (
